@@ -4,7 +4,7 @@ import (
 	"github.com/devopsfaith/krakend/config"
 	"github.com/pkg/errors"
 	"github.com/influxdata/influxdb/client/v2"
-	"github.com/devopsfaith/krakend-metrics"
+	metrics "github.com/devopsfaith/krakend-metrics/gin"
 	"time"
 	"context"
 )
