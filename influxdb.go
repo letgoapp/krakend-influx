@@ -68,7 +68,7 @@ var errNoConfig = errors.New("Unable to load custom config from the extra config
 
 func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *metrics.Metrics, logger logging.Logger) error {
 	logger.Debug("Entering new")
-	fmt.println("pepe")
+	fmt.Println("pepe")
 	cfg, ok := configGetter(extraConfig).(influxConfig)
 
 	if !ok {
