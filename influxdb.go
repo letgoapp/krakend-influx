@@ -7,6 +7,8 @@ import (
 	metrics "github.com/devopsfaith/krakend-metrics/gin"
 	"time"
 	"context"
+	"fmt"
+	"github.com/devopsfaith/krakend/logging"
 )
 
 const Namespace = "github_com/letgoapp/krakend-influx"
@@ -15,7 +17,7 @@ type influxConfig struct {
 	address  string
 	username string
 	password string
-	ttl time.Duration
+	ttl      time.Duration
 }
 
 func configGetter(extraConfig config.ExtraConfig) interface{} {
@@ -49,7 +51,7 @@ func configGetter(extraConfig config.ExtraConfig) interface{} {
 		s, ok := value.(string)
 
 		if !ok {
-		    return nil
+			return nil
 		}
 		var err error
 		cfg.ttl, err = time.ParseDuration(s)
@@ -64,11 +66,14 @@ func configGetter(extraConfig config.ExtraConfig) interface{} {
 
 var errNoConfig = errors.New("Unable to load custom config from the extra config")
 
-func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *metrics.Metrics) error {
+func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *metrics.Metrics, logger logging.Logger) error {
+	logger.Debug("Entering new")
+	fmt.println("pepe")
 	cfg, ok := configGetter(extraConfig).(influxConfig)
 
 	if !ok {
-	    return errNoConfig
+		logger.Debug("no config")
+		return errNoConfig
 	}
 
 	influxdbClient, err := client.NewHTTPClient(client.HTTPConfig{
@@ -78,20 +83,28 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 	})
 
 	if err != nil {
+		logger.Debug("client crashed")
 		return err
 	}
 
-	go keepUpdated(ctx, influxdbClient, metricsCollector)
+	t := time.NewTicker(cfg.ttl)
+
+	go keepUpdated(ctx, t.C, influxdbClient, metricsCollector)
+
+	logger.Debug("client up and running")
+
 	return nil
 }
 
-func keepUpdated(ctx context.Context, influxdbClient client.Client, metricsCollector *metrics.Metrics) {
+func keepUpdated(ctx context.Context, ticker <-chan time.Time, influxdbClient client.Client, metricsCollector *metrics.Metrics) {
 	for {
 		select {
-		case <-time.After(time.Second):
+		case <-ticker:
 		case <-ctx.Done():
 			return
 		}
+
+		fmt.Println("Preparing points")
 
 		bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
 			Database:  "supu",
@@ -122,5 +135,7 @@ func keepUpdated(ctx context.Context, influxdbClient client.Client, metricsColle
 		bp.AddPoint(gaugesPoint)
 
 		influxdbClient.Write(bp)
+
+		fmt.Println("WRITE done")
 	}
 }
