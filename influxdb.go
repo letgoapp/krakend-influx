@@ -1,78 +1,29 @@
 package influxdb
 
 import (
-	"github.com/devopsfaith/krakend/config"
-	"github.com/pkg/errors"
-	"github.com/influxdata/influxdb/client/v2"
-	metrics "github.com/devopsfaith/krakend-metrics/gin"
-	"time"
 	"context"
-	"fmt"
+	"time"
+
+	ginmetrics "github.com/devopsfaith/krakend-metrics/gin"
+	"github.com/devopsfaith/krakend/config"
 	"github.com/devopsfaith/krakend/logging"
+	"github.com/influxdata/influxdb/client/v2"
 )
 
 const Namespace = "github_com/letgoapp/krakend-influx"
 
-type influxConfig struct {
-	address  string
-	username string
-	password string
-	ttl      time.Duration
+type clientWrapper struct {
+	influxClient client.Client
+	collector    *ginmetrics.Metrics
+	logger       logging.Logger
+	db           string
 }
 
-func configGetter(extraConfig config.ExtraConfig) interface{} {
-	value, ok := extraConfig[Namespace]
-
-	if !ok {
-		return nil
-	}
-
-	castedConfig, ok := value.(map[string]interface{})
-
-	if !ok {
-		return nil
-	}
-
-	cfg := influxConfig{}
-
-	if value, ok := castedConfig["address"]; ok {
-		cfg.address = value.(string)
-	}
-
-	if value, ok := castedConfig["username"]; ok {
-		cfg.username = value.(string)
-	}
-
-	if value, ok := castedConfig["password"]; ok {
-		cfg.password = value.(string)
-	}
-
-	if value, ok := castedConfig["ttl"]; ok {
-		s, ok := value.(string)
-
-		if !ok {
-			return nil
-		}
-		var err error
-		cfg.ttl, err = time.ParseDuration(s)
-
-		if err != nil {
-			return nil
-		}
-	}
-
-	return cfg
-}
-
-var errNoConfig = errors.New("Unable to load custom config from the extra config")
-
-func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *metrics.Metrics, logger logging.Logger) error {
-	logger.Debug("Entering new")
-	fmt.Println("pepe")
+func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *ginmetrics.Metrics, logger logging.Logger) error {
+	logger.Debug("creating a new ifluxdb client")
 	cfg, ok := configGetter(extraConfig).(influxConfig)
-
 	if !ok {
-		logger.Debug("no config")
+		logger.Debug("no config fot the influx client. aborting")
 		return errNoConfig
 	}
 
@@ -81,22 +32,28 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 		Username: cfg.username,
 		Password: cfg.password,
 	})
-
 	if err != nil {
-		logger.Debug("client crashed")
+		logger.Debug("influx client crashed")
 		return err
 	}
 
 	t := time.NewTicker(cfg.ttl)
 
-	go keepUpdated(ctx, t.C, influxdbClient, metricsCollector)
+	cw := clientWrapper{
+		influxClient: influxdbClient,
+		collector:    metricsCollector,
+		logger:       logger,
+		db:           cfg.database,
+	}
+
+	go cw.keepUpdated(ctx, t.C)
 
 	logger.Debug("client up and running")
 
 	return nil
 }
 
-func keepUpdated(ctx context.Context, ticker <-chan time.Time, influxdbClient client.Client, metricsCollector *metrics.Metrics) {
+func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time) {
 	for {
 		select {
 		case <-ticker:
@@ -104,38 +61,37 @@ func keepUpdated(ctx context.Context, ticker <-chan time.Time, influxdbClient cl
 			return
 		}
 
-		fmt.Println("Preparing points")
+		cw.logger.Info("Preparing points")
+
+		snapshot := cw.collector.Snapshot()
+
+		if shouldSendPoints := len(snapshot.Counters) > 0 || len(snapshot.Gauges) > 0; !shouldSendPoints {
+			cw.logger.Info("no metrics to send to influx")
+			continue
+		}
 
 		bp, _ := client.NewBatchPoints(client.BatchPointsConfig{
-			Database:  "supu",
+			Database:  cw.db,
 			Precision: "s",
 		})
+		now := time.Unix(0, snapshot.Time)
 
-		snapshot := metricsCollector.Snapshot()
-
-		fields := make(map[string]interface{}, len(snapshot.Counters))
-
-		for k, v := range snapshot.Counters {
-			fields[k] = v
+		for _, p := range cw.requestCounterValues(now, snapshot.Counters) {
+			cw.logger.Debug(p.String())
+			bp.AddPoint(p)
 		}
 
-		now := time.Unix(snapshot.Time, 0)
-
-		countersPoint, _ := client.NewPoint("counters", map[string]string{"type": "counters"}, fields, now)
-
-		fields = make(map[string]interface{}, len(snapshot.Gauges))
-
-		for k, v := range snapshot.Gauges {
-			fields[k] = v
+		for _, p := range cw.responseCounterValues(now, snapshot.Counters) {
+			cw.logger.Debug(p.String())
+			bp.AddPoint(p)
 		}
 
-		gaugesPoint, _ := client.NewPoint("gauges", map[string]string{"type": "gauges"}, fields, now)
+		// TODO: collect all the other points
 
-		bp.AddPoint(countersPoint)
-		bp.AddPoint(gaugesPoint)
+		if err := cw.influxClient.Write(bp); err != nil {
+			cw.logger.Error("writting to influx:", err.Error())
+		}
 
-		influxdbClient.Write(bp)
-
-		fmt.Println("WRITE done")
+		cw.logger.Info(len(bp.Points()), "datapoints sent to Influx")
 	}
 }
