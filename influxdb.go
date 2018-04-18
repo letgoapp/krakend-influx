@@ -8,6 +8,9 @@ import (
 	"github.com/devopsfaith/krakend/config"
 	"github.com/devopsfaith/krakend/logging"
 	"github.com/influxdata/influxdb/client/v2"
+
+	"github.com/letgoapp/krakend-influx/counter"
+	"github.com/letgoapp/krakend-influx/gauge"
 )
 
 const Namespace = "github_com/letgoapp/krakend-influx"
@@ -76,13 +79,11 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 		})
 		now := time.Unix(0, snapshot.Time)
 
-		for _, p := range cw.requestCounterValues(now, snapshot.Counters) {
-			cw.logger.Debug(p.String())
+		for _, p := range counter.Points(now, snapshot.Counters, cw.logger) {
 			bp.AddPoint(p)
 		}
 
-		for _, p := range cw.responseCounterValues(now, snapshot.Counters) {
-			cw.logger.Debug(p.String())
+		for _, p := range gauge.Points(now, snapshot.Gauges, cw.logger) {
 			bp.AddPoint(p)
 		}
 
