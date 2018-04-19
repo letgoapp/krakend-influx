@@ -2,6 +2,7 @@ package influxdb
 
 import (
 	"context"
+	"os"
 	"time"
 
 	ginmetrics "github.com/devopsfaith/krakend-metrics/gin"
@@ -23,10 +24,10 @@ type clientWrapper struct {
 }
 
 func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *ginmetrics.Metrics, logger logging.Logger) error {
-	logger.Debug("creating a new ifluxdb client")
+	logger.Debug("creating a new influxdb client")
 	cfg, ok := configGetter(extraConfig).(influxConfig)
 	if !ok {
-		logger.Debug("no config fot the influx client. aborting")
+		logger.Debug("no config fot the influxdb client. aborting")
 		return errNoConfig
 	}
 
@@ -36,7 +37,7 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 		Password: cfg.password,
 	})
 	if err != nil {
-		logger.Debug("influx client crashed")
+		logger.Debug("influxdb client crashed")
 		return err
 	}
 
@@ -51,12 +52,16 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 
 	go cw.keepUpdated(ctx, t.C)
 
-	logger.Debug("client up and running")
+	logger.Debug("influxdb client up and running")
 
 	return nil
 }
 
 func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time) {
+	hostname, err := os.Hostname()
+	if err != nil {
+		cw.logger.Error("influxdb resolving the local hostname:", err.Error())
+	}
 	for {
 		select {
 		case <-ticker:
@@ -64,12 +69,12 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 			return
 		}
 
-		cw.logger.Info("Preparing points")
+		cw.logger.Debug("Preparing influxdb points")
 
 		snapshot := cw.collector.Snapshot()
 
 		if shouldSendPoints := len(snapshot.Counters) > 0 || len(snapshot.Gauges) > 0; !shouldSendPoints {
-			cw.logger.Info("no metrics to send to influx")
+			cw.logger.Debug("no metrics to send to influx")
 			continue
 		}
 
@@ -79,11 +84,11 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 		})
 		now := time.Unix(0, snapshot.Time)
 
-		for _, p := range counter.Points(now, snapshot.Counters, cw.logger) {
+		for _, p := range counter.Points(hostname, now, snapshot.Counters, cw.logger) {
 			bp.AddPoint(p)
 		}
 
-		for _, p := range gauge.Points(now, snapshot.Gauges, cw.logger) {
+		for _, p := range gauge.Points(hostname, now, snapshot.Gauges, cw.logger) {
 			bp.AddPoint(p)
 		}
 
