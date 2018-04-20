@@ -1,6 +1,7 @@
 package gauge
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/devopsfaith/krakend/logging"
@@ -8,7 +9,7 @@ import (
 )
 
 func Points(hostname string, now time.Time, counters map[string]int64, logger logging.Logger) []*client.Point {
-	res := make([]*client.Point, 2)
+	res := make([]*client.Point, 4)
 
 	in := map[string]interface{}{
 		"gauge": int(counters["krakend.router.connected-gauge"]),
@@ -29,6 +30,38 @@ func Points(hostname string, now time.Time, counters map[string]int64, logger lo
 		return res
 	}
 	res[1] = outgoing
+
+	debug := map[string]interface{}{}
+	runtime := map[string]interface{}{}
+
+	for k, v := range counters {
+		if k == "krakend.router.connected-gauge" || k == "krakend.router.disconnected-gauge" {
+			continue
+		}
+		if k[:22] == "krakend.service.debug." {
+			debug[k[22:]] = int(v)
+			continue
+		}
+		if k[:24] == "krakend.service.runtime." {
+			runtime[k[24:]] = int(v)
+			continue
+		}
+		fmt.Println("unknown gauge key:", k)
+	}
+
+	debugPoint, err := client.NewPoint("debug", map[string]string{"host": hostname}, debug, now)
+	if err != nil {
+		logger.Error("creating debug counters point:", err.Error())
+		return res
+	}
+	res[2] = debugPoint
+
+	runtimePoint, err := client.NewPoint("runtime", map[string]string{"host": hostname}, debug, now)
+	if err != nil {
+		logger.Error("creating runtime counters point:", err.Error())
+		return res
+	}
+	res[3] = runtimePoint
 
 	return res
 }

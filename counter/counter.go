@@ -16,10 +16,10 @@ func Points(hostname string, now time.Time, counters map[string]int64, logger lo
 }
 
 var (
-	requestCounterPattern = `krakend\.proxy\.requests\.layer\.([a-zA-Z]+)\.name\.([\/_a-zA-Z]+)\.complete\.(true|false)\.error\.(true|false)`
+	requestCounterPattern = `krakend\.proxy\.requests\.layer\.([a-zA-Z]+)\.name\.(.*)\.complete\.(true|false)\.error\.(true|false)`
 	requestCounterRegexp  = regexp.MustCompile(requestCounterPattern)
 
-	responseCounterPattern = `krakend\.router\.response\.([\/_a-zA-Z]+)\.status\.([\d]{3})\.count`
+	responseCounterPattern = `krakend\.router\.response\.(.*)\.status\.([\d]{3})\.count`
 	responseCounterRegexp  = regexp.MustCompile(responseCounterPattern)
 )
 

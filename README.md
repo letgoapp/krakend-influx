@@ -16,3 +16,15 @@ and in a new terminal, open the CLI
 ```
 $ docker exec -it influx influx
 ```
+
+## Grafana dashboard
+
+```
+$ docker run \
+  -d \
+  -p 3000:3000 \
+  --name=grafana \
+  grafana/grafana
+```
+
+and import the dashboard `grafana-dashboard.json`
