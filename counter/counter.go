@@ -2,10 +2,18 @@ package counter
 
 import (
 	"regexp"
+	"strings"
+	"sync"
 	"time"
 
 	"github.com/devopsfaith/krakend/logging"
 	"github.com/influxdata/influxdb/client/v2"
+)
+
+var (
+	lastRequestCount  = map[string]int{}
+	lastResponseCount = map[string]int{}
+	mu                = new(sync.Mutex)
 )
 
 func Points(hostname string, now time.Time, counters map[string]int64, logger logging.Logger) []*client.Point {
@@ -25,6 +33,7 @@ var (
 
 func requestPoints(hostname string, now time.Time, counters map[string]int64, logger logging.Logger) []*client.Point {
 	res := []*client.Point{}
+	mu.Lock()
 	for k, count := range counters {
 		if !requestCounterRegexp.MatchString(k) {
 			continue
@@ -37,9 +46,15 @@ func requestPoints(hostname string, now time.Time, counters map[string]int64, lo
 			"complete": params[2],
 			"error":    params[3],
 		}
-		fields := map[string]interface{}{
-			"count": int(count),
+		last, ok := lastRequestCount[strings.Join(params, ".")]
+		if !ok {
+			last = 0
 		}
+		fields := map[string]interface{}{
+			"total": int(count),
+			"count": int(count) - last,
+		}
+		lastRequestCount[strings.Join(params, ".")] = int(count)
 
 		countersPoint, err := client.NewPoint("requests", tags, fields, now)
 		if err != nil {
@@ -48,11 +63,13 @@ func requestPoints(hostname string, now time.Time, counters map[string]int64, lo
 		}
 		res = append(res, countersPoint)
 	}
+	mu.Unlock()
 	return res
 }
 
 func responsePoints(hostname string, now time.Time, counters map[string]int64, logger logging.Logger) []*client.Point {
 	res := []*client.Point{}
+	mu.Lock()
 	for k, count := range counters {
 		if !responseCounterRegexp.MatchString(k) {
 			continue
@@ -63,9 +80,15 @@ func responsePoints(hostname string, now time.Time, counters map[string]int64, l
 			"name":   params[0],
 			"status": params[1],
 		}
-		fields := map[string]interface{}{
-			"count": int(count),
+		last, ok := lastResponseCount[strings.Join(params, ".")]
+		if !ok {
+			last = 0
 		}
+		fields := map[string]interface{}{
+			"total": int(count),
+			"count": int(count) - last,
+		}
+		lastResponseCount[strings.Join(params, ".")] = int(count)
 
 		countersPoint, err := client.NewPoint("responses", tags, fields, now)
 		if err != nil {
@@ -74,6 +97,7 @@ func responsePoints(hostname string, now time.Time, counters map[string]int64, l
 		}
 		res = append(res, countersPoint)
 	}
+	mu.Unlock()
 	return res
 }
 

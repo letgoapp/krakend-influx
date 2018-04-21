@@ -512,7 +512,7 @@
           "label": null,
           "logBase": 1,
           "max": null,
-          "min": null,
+          "min": "0",
           "show": true
         },
         {
@@ -572,7 +572,7 @@
             },
             {
               "params": [
-                "null"
+                "0"
               ],
               "type": "fill"
             }
@@ -615,7 +615,7 @@
             },
             {
               "params": [
-                "null"
+                "0"
               ],
               "type": "fill"
             }
@@ -737,7 +737,7 @@
             },
             {
               "params": [
-                "linear"
+                "0"
               ],
               "type": "fill"
             }
@@ -866,7 +866,7 @@
             },
             {
               "params": [
-                "linear"
+                "0"
               ],
               "type": "fill"
             }
@@ -1391,7 +1391,7 @@
             },
             {
               "params": [
-                "linear"
+                "0"
               ],
               "type": "fill"
             }
@@ -2287,5 +2287,5 @@
   "timezone": "",
   "title": "KrakenD",
   "uid": "I9FkyxWik",
-  "version": 14
+  "version": 15
 }
