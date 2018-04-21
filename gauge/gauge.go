@@ -56,7 +56,7 @@ func Points(hostname string, now time.Time, counters map[string]int64, logger lo
 	}
 	res[2] = debugPoint
 
-	runtimePoint, err := client.NewPoint("runtime", map[string]string{"host": hostname}, debug, now)
+	runtimePoint, err := client.NewPoint("runtime", map[string]string{"host": hostname}, runtime, now)
 	if err != nil {
 		logger.Error("creating runtime counters point:", err.Error())
 		return res
