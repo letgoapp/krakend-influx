@@ -64,7 +64,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1524310128792,
+  "iteration": 1524310128883,
   "links": [],
   "panels": [
     {
@@ -463,7 +463,7 @@
         "x": 9,
         "y": 0
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 63,
       "interval": null,
       "links": [],
@@ -544,7 +544,7 @@
         }
       ],
       "thresholds": "",
-      "timeFrom": "$resolution",
+      "timeFrom": null,
       "title": "Avg Response Time",
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -817,7 +817,7 @@
         "x": 18,
         "y": 0
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 69,
       "interval": null,
       "links": [],
@@ -898,7 +898,7 @@
         }
       ],
       "thresholds": "",
-      "timeFrom": "$resolution",
+      "timeFrom": null,
       "title": "Allocated Mem (per host)",
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -935,7 +935,7 @@
         "x": 21,
         "y": 0
       },
-      "hideTimeOverride": true,
+      "hideTimeOverride": false,
       "id": 64,
       "interval": null,
       "links": [],
@@ -1016,7 +1016,7 @@
         }
       ],
       "thresholds": "",
-      "timeFrom": "$resolution",
+      "timeFrom": null,
       "title": "Goroutines (per host)",
       "type": "singlestat",
       "valueFontSize": "80%",
@@ -1157,7 +1157,7 @@
           ]
         }
       ],
-      "title": "Endpoint Throughput",
+      "title": "Endpoint Throughput (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -1276,7 +1276,7 @@
           ]
         }
       ],
-      "title": "Endpoint Response Time (ms)",
+      "title": "Endpoint Response Time (ms) (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -1418,7 +1418,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Connections per minute",
+      "title": "Avg Connections per minute",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -1727,7 +1727,7 @@
           "groupBy": [
             {
               "params": [
-                "$resolution"
+                "1m"
               ],
               "type": "time"
             },
@@ -1772,7 +1772,7 @@
           ]
         }
       ],
-      "title": "Response Time",
+      "title": "Response Time HeatMap",
       "tooltip": {
         "show": true,
         "showHistogram": false
@@ -1949,7 +1949,7 @@
           "groupBy": [
             {
               "params": [
-                "$resolution"
+                "1m"
               ],
               "type": "time"
             },
@@ -1994,7 +1994,7 @@
           ]
         }
       ],
-      "title": "Response Size",
+      "title": "Response Size HeatMap",
       "tooltip": {
         "show": true,
         "showHistogram": false
@@ -2442,7 +2442,7 @@
           ]
         }
       ],
-      "title": "Pipe Throughput",
+      "title": "Pipe Throughput (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -2567,7 +2567,7 @@
           ]
         }
       ],
-      "title": "Pipe Response Time (ms)",
+      "title": "Pipe Response Time (ms) (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -2800,7 +2800,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Proxy response distribution",
+      "title": "Proxy response distribution (per $resolution)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -3005,7 +3005,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "1m"
               ],
               "type": "time"
             },
@@ -3257,7 +3257,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "1m"
               ],
               "type": "time"
             },
@@ -3324,7 +3324,7 @@
         "show": true
       },
       "xBucketNumber": null,
-      "xBucketSize": null,
+      "xBucketSize": "",
       "yAxis": {
         "decimals": null,
         "format": "ns",
@@ -3469,7 +3469,7 @@
           ]
         }
       ],
-      "title": "Backend Throughput",
+      "title": "Backend Throughput (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -3594,7 +3594,7 @@
           ]
         }
       ],
-      "title": "Backend Response Time (ms)",
+      "title": "Backend Response Time (ms) (per $resolution)",
       "transform": "timeseries_aggregations",
       "type": "table"
     },
@@ -3827,7 +3827,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Backend response distribution",
+      "title": "Backend response distribution (per $resolution)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -4032,7 +4032,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "1m"
               ],
               "type": "time"
             },
@@ -4284,7 +4284,7 @@
           "groupBy": [
             {
               "params": [
-                "$__interval"
+                "1m"
               ],
               "type": "time"
             },
@@ -4642,7 +4642,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "executions",
+          "alias": "/executions/",
           "yaxis": 2
         }
       ],
@@ -4651,13 +4651,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "pause",
+          "alias": "pause $tag_host",
           "groupBy": [
             {
               "params": [
                 "$resolution"
               ],
               "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
             },
             {
               "params": [
@@ -4681,7 +4687,7 @@
               },
               {
                 "params": [],
-                "type": "sum"
+                "type": "mean"
               }
             ]
           ],
@@ -4694,13 +4700,19 @@
           ]
         },
         {
-          "alias": "executions",
+          "alias": "executions $tag_host",
           "groupBy": [
             {
               "params": [
                 "$resolution"
               ],
               "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
             },
             {
               "params": [
@@ -4724,7 +4736,7 @@
               },
               {
                 "params": [],
-                "type": "sum"
+                "type": "mean"
               }
             ]
           ],
@@ -4806,7 +4818,7 @@
       "renderer": "flot",
       "seriesOverrides": [
         {
-          "alias": "executions",
+          "alias": "/executions/",
           "yaxis": 2
         }
       ],
@@ -4815,13 +4827,19 @@
       "steppedLine": false,
       "targets": [
         {
-          "alias": "pause",
+          "alias": "pause $tag_host",
           "groupBy": [
             {
               "params": [
                 "$resolution"
               ],
               "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
             },
             {
               "params": [
@@ -4858,13 +4876,19 @@
           ]
         },
         {
-          "alias": "executions",
+          "alias": "executions $tag_host",
           "groupBy": [
             {
               "params": [
                 "$resolution"
               ],
               "type": "time"
+            },
+            {
+              "params": [
+                "host"
+              ],
+              "type": "tag"
             },
             {
               "params": [
@@ -5671,7 +5695,7 @@
         "x": 12,
         "y": 152
       },
-      "id": 44,
+      "id": 80,
       "legend": {
         "avg": false,
         "current": false,
@@ -5692,6 +5716,166 @@
       "seriesOverrides": [],
       "spaceLength": 10,
       "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "HeapInUse",
+          "groupBy": [
+            {
+              "params": [
+                "$resolution"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "runtime",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "MemStats.HeapInuse"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "host",
+              "operator": "=~",
+              "value": "/^$host$/"
+            }
+          ]
+        },
+        {
+          "alias": "HeapSys",
+          "groupBy": [
+            {
+              "params": [
+                "$resolution"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "runtime",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "MemStats.HeapSys"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "host",
+              "operator": "=~",
+              "value": "/^$host$/"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Heap Management",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_INFLUX}",
+      "description": "HeapIdle minus HeapReleased estimates the amount of memory that could be returned to the OS, but is being retained by the runtime so it can grow the heap without requesting more memory from the OS. If this difference is significantly larger than the heap size, it indicates there was a recent transient spike in live heap size.",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 0,
+        "y": 161
+      },
+      "id": 79,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
       "steppedLine": false,
       "targets": [
         {
@@ -5720,49 +5904,6 @@
               {
                 "params": [
                   "MemStats.HeapIdle"
-                ],
-                "type": "field"
-              },
-              {
-                "params": [],
-                "type": "mean"
-              }
-            ]
-          ],
-          "tags": [
-            {
-              "key": "host",
-              "operator": "=~",
-              "value": "/^$host$/"
-            }
-          ]
-        },
-        {
-          "alias": "HeapInUse",
-          "groupBy": [
-            {
-              "params": [
-                "$resolution"
-              ],
-              "type": "time"
-            },
-            {
-              "params": [
-                "null"
-              ],
-              "type": "fill"
-            }
-          ],
-          "measurement": "runtime",
-          "orderByTime": "ASC",
-          "policy": "default",
-          "refId": "B",
-          "resultFormat": "time_series",
-          "select": [
-            [
-              {
-                "params": [
-                  "MemStats.HeapInuse"
                 ],
                 "type": "field"
               },
@@ -5827,7 +5968,167 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Heap Management",
+      "title": "Idle Memory",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "decbytes",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ]
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": "${DS_INFLUX}",
+      "description": "HeapInuse minus HeapAlloc estimates the amount of memory that has been dedicated to particular size classes, but is not currently being used. This is an upper bound on fragmentation, but in general this memory can be reused efficiently.",
+      "fill": 1,
+      "gridPos": {
+        "h": 9,
+        "w": 12,
+        "x": 12,
+        "y": 161
+      },
+      "id": 81,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "links": [],
+      "nullPointMode": "null as zero",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": true,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "HeapAlloc",
+          "groupBy": [
+            {
+              "params": [
+                "$resolution"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "runtime",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "B",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "MemStats.HeapAlloc"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "host",
+              "operator": "=~",
+              "value": "/^$host$/"
+            }
+          ]
+        },
+        {
+          "alias": "HeapInUse",
+          "groupBy": [
+            {
+              "params": [
+                "$resolution"
+              ],
+              "type": "time"
+            },
+            {
+              "params": [
+                "null"
+              ],
+              "type": "fill"
+            }
+          ],
+          "measurement": "runtime",
+          "orderByTime": "ASC",
+          "policy": "default",
+          "refId": "C",
+          "resultFormat": "time_series",
+          "select": [
+            [
+              {
+                "params": [
+                  "MemStats.HeapInuse"
+                ],
+                "type": "field"
+              },
+              {
+                "params": [],
+                "type": "mean"
+              }
+            ]
+          ],
+          "tags": [
+            {
+              "key": "host",
+              "operator": "=~",
+              "value": "/^$host$/"
+            }
+          ]
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Heap Alloc vs InUse",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -5871,7 +6172,7 @@
         "h": 9,
         "w": 12,
         "x": 0,
-        "y": 161
+        "y": 170
       },
       "id": 42,
       "legend": {
@@ -5993,7 +6294,7 @@
         "h": 9,
         "w": 12,
         "x": 12,
-        "y": 161
+        "y": 170
       },
       "id": 43,
       "legend": {
@@ -6173,15 +6474,15 @@
         "auto_count": 30,
         "auto_min": "1m",
         "current": {
-          "text": "2m",
-          "value": "2m"
+          "text": "auto",
+          "value": "$__auto_interval_resolution"
         },
         "hide": 0,
         "label": null,
         "name": "resolution",
         "options": [
           {
-            "selected": false,
+            "selected": true,
             "text": "auto",
             "value": "$__auto_interval_resolution"
           },
@@ -6191,7 +6492,7 @@
             "value": "1m"
           },
           {
-            "selected": true,
+            "selected": false,
             "text": "2m",
             "value": "2m"
           },
@@ -6253,7 +6554,7 @@
     ]
   },
   "time": {
-    "from": "now-3h",
+    "from": "now-6h",
     "to": "now"
   },
   "timepicker": {
@@ -6281,5 +6582,5 @@
   "timezone": "",
   "title": "KrakenD",
   "uid": "I9FkyxWik",
-  "version": 22
+  "version": 25
 }
