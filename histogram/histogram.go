@@ -35,6 +35,11 @@ func latencyPoints(hostname string, now time.Time, histograms map[string]metrics
 		if !latencyRegexp.MatchString(k) {
 			continue
 		}
+
+		if isEmpty(histogram) {
+			continue
+		}
+
 		params := latencyRegexp.FindAllStringSubmatch(k, -1)[0][1:]
 		tags := map[string]string{
 			"host":     hostname,
@@ -43,15 +48,8 @@ func latencyPoints(hostname string, now time.Time, histograms map[string]metrics
 			"complete": params[2],
 			"error":    params[3],
 		}
-		fields := map[string]interface{}{
-			"max":      int(histogram.Max),
-			"min":      int(histogram.Min),
-			"mean":     int(histogram.Mean),
-			"stddev":   int(histogram.Stddev),
-			"variance": int(histogram.Variance),
-		}
 
-		histogramPoint, err := client.NewPoint("requests", tags, fields, now)
+		histogramPoint, err := client.NewPoint("requests", tags, newFields(histogram), now)
 		if err != nil {
 			logger.Error("creating histogram point:", err.Error())
 			continue
@@ -67,20 +65,18 @@ func routerPoints(hostname string, now time.Time, histograms map[string]metrics.
 		if !routerRegexp.MatchString(k) {
 			continue
 		}
+
+		if isEmpty(histogram) {
+			continue
+		}
+
 		params := routerRegexp.FindAllStringSubmatch(k, -1)[0][1:]
 		tags := map[string]string{
 			"host": hostname,
 			"name": params[0],
 		}
-		fields := map[string]interface{}{
-			"max":      int(histogram.Max),
-			"min":      int(histogram.Min),
-			"mean":     int(histogram.Mean),
-			"stddev":   int(histogram.Stddev),
-			"variance": int(histogram.Variance),
-		}
 
-		histogramPoint, err := client.NewPoint("router.response-"+params[1], tags, fields, now)
+		histogramPoint, err := client.NewPoint("router.response-"+params[1], tags, newFields(histogram), now)
 		if err != nil {
 			logger.Error("creating histogram point:", err.Error())
 			continue
@@ -98,15 +94,8 @@ func debugPoint(hostname string, now time.Time, histograms map[string]metrics.Hi
 	tags := map[string]string{
 		"host": hostname,
 	}
-	fields := map[string]interface{}{
-		"max":      int(hd.Max),
-		"min":      int(hd.Min),
-		"mean":     int(hd.Mean),
-		"stddev":   int(hd.Stddev),
-		"variance": int(hd.Variance),
-	}
 
-	histogramPoint, err := client.NewPoint("service.debug.GCStats.Pause", tags, fields, now)
+	histogramPoint, err := client.NewPoint("service.debug.GCStats.Pause", tags, newFields(hd), now)
 	if err != nil {
 		logger.Error("creating histogram point:", err.Error())
 		return nil
@@ -122,18 +111,42 @@ func runtimePoint(hostname string, now time.Time, histograms map[string]metrics.
 	tags := map[string]string{
 		"host": hostname,
 	}
-	fields := map[string]interface{}{
-		"max":      int(hd.Max),
-		"min":      int(hd.Min),
-		"mean":     int(hd.Mean),
-		"stddev":   int(hd.Stddev),
-		"variance": int(hd.Variance),
-	}
 
-	histogramPoint, err := client.NewPoint("service.runtime.MemStats.PauseNs", tags, fields, now)
+	histogramPoint, err := client.NewPoint("service.runtime.MemStats.PauseNs", tags, newFields(hd), now)
 	if err != nil {
 		logger.Error("creating histogram point:", err.Error())
 		return nil
 	}
 	return histogramPoint
+}
+
+func isEmpty(histogram metrics.HistogramData) bool {
+	return histogram.Max == 0 && histogram.Min == 0 &&
+		histogram.Mean == .0 && histogram.Stddev == .0 && histogram.Variance == 0 &&
+		(len(histogram.Percentiles) == 0 ||
+			histogram.Percentiles[0] == .0 && histogram.Percentiles[len(histogram.Percentiles)-1] == .0)
+}
+
+func newFields(h metrics.HistogramData) map[string]interface{} {
+	fields := map[string]interface{}{
+		"max":      int(h.Max),
+		"min":      int(h.Min),
+		"mean":     int(h.Mean),
+		"stddev":   int(h.Stddev),
+		"variance": int(h.Variance),
+	}
+
+	if len(h.Percentiles) != 7 {
+		return fields
+	}
+
+	fields["p0.1"] = h.Percentiles[0]
+	fields["p0.25"] = h.Percentiles[1]
+	fields["p0.5"] = h.Percentiles[2]
+	fields["p0.75"] = h.Percentiles[3]
+	fields["p0.9"] = h.Percentiles[4]
+	fields["p0.95"] = h.Percentiles[5]
+	fields["p0.99"] = h.Percentiles[6]
+
+	return fields
 }
