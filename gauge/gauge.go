@@ -1,7 +1,6 @@
 package gauge
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/devopsfaith/krakend/logging"
@@ -46,7 +45,7 @@ func Points(hostname string, now time.Time, counters map[string]int64, logger lo
 			runtime[k[24:]] = int(v)
 			continue
 		}
-		fmt.Println("unknown gauge key:", k)
+		logger.Debug("unknown gauge key:", k)
 	}
 
 	debugPoint, err := client.NewPoint("debug", map[string]string{"host": hostname}, debug, now)
