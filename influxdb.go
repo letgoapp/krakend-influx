@@ -36,11 +36,21 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 		Addr:     cfg.address,
 		Username: cfg.username,
 		Password: cfg.password,
+		Timeout:  10 * time.Second,
 	})
 	if err != nil {
 		logger.Debug("influxdb client crashed")
 		return err
 	}
+
+	go func() {
+		pingDuration, pingMsg, err := influxdbClient.Ping(time.Second)
+		if err != nil {
+			logger.Error("unable to ping the influx server:", err.Error())
+			return
+		}
+		logger.Debug("influx ping results: duration =", pingDuration, "msg =", pingMsg)
+	}()
 
 	t := time.NewTicker(cfg.ttl)
 
