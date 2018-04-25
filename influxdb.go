@@ -12,6 +12,7 @@ import (
 
 	"github.com/letgoapp/krakend-influx/counter"
 	"github.com/letgoapp/krakend-influx/gauge"
+	"github.com/letgoapp/krakend-influx/histogram"
 )
 
 const Namespace = "github_com/letgoapp/krakend-influx"
@@ -92,7 +93,9 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 			bp.AddPoint(p)
 		}
 
-		// TODO: collect all the other points
+		for _, p := range histogram.Points(hostname, now, snapshot.Histograms, cw.logger) {
+			bp.AddPoint(p)
+		}
 
 		if err := cw.influxClient.Write(bp); err != nil {
 			cw.logger.Error("writting to influx:", err.Error())
