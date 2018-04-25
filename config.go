@@ -7,12 +7,15 @@ import (
 	"github.com/devopsfaith/krakend/config"
 )
 
+const defaultBufferSize = 0
+
 type influxConfig struct {
-	address  string
-	username string
-	password string
-	ttl      time.Duration
-	database string
+	address    string
+	username   string
+	password   string
+	ttl        time.Duration
+	database   string
+	bufferSize int
 }
 
 func configGetter(extraConfig config.ExtraConfig) interface{} {
@@ -38,6 +41,12 @@ func configGetter(extraConfig config.ExtraConfig) interface{} {
 
 	if value, ok := castedConfig["password"]; ok {
 		cfg.password = value.(string)
+	}
+
+	if value, ok := castedConfig["buffer_size"]; ok {
+		if s, ok := value.(int); ok {
+			cfg.bufferSize = s
+		}
 	}
 
 	if value, ok := castedConfig["ttl"]; ok {

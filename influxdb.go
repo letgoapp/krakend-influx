@@ -22,6 +22,7 @@ type clientWrapper struct {
 	collector    *ginmetrics.Metrics
 	logger       logging.Logger
 	db           string
+	buf          *Buffer
 }
 
 func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *ginmetrics.Metrics, logger logging.Logger) error {
@@ -36,11 +37,21 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 		Addr:     cfg.address,
 		Username: cfg.username,
 		Password: cfg.password,
+		Timeout:  10 * time.Second,
 	})
 	if err != nil {
 		logger.Debug("influxdb client crashed")
 		return err
 	}
+
+	go func() {
+		pingDuration, pingMsg, err := influxdbClient.Ping(time.Second)
+		if err != nil {
+			logger.Error("unable to ping the influx server:", err.Error())
+			return
+		}
+		logger.Debug("influx ping results: duration =", pingDuration, "msg =", pingMsg)
+	}()
 
 	t := time.NewTicker(cfg.ttl)
 
@@ -49,6 +60,7 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 		collector:    metricsCollector,
 		logger:       logger,
 		db:           cfg.database,
+		buf:          NewBuffer(cfg.bufferSize),
 	}
 
 	go cw.keepUpdated(ctx, t.C)
@@ -99,8 +111,28 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 
 		if err := cw.influxClient.Write(bp); err != nil {
 			cw.logger.Error("writting to influx:", err.Error())
+			cw.buf.Add(bp)
+			continue
 		}
 
 		cw.logger.Info(len(bp.Points()), "datapoints sent to Influx")
+
+		pts := []*client.Point{}
+		bpPending := cw.buf.Elements()
+		for _, failedBP := range bpPending {
+			pts = append(pts, failedBP.Points()...)
+		}
+
+		retryBatch, _ := client.NewBatchPoints(client.BatchPointsConfig{
+			Database:  cw.db,
+			Precision: "s",
+		})
+		retryBatch.AddPoints(pts)
+
+		if err := cw.influxClient.Write(bp); err != nil {
+			cw.logger.Error("writting to influx:", err.Error())
+			cw.buf.Add(bpPending...)
+			continue
+		}
 	}
 }
