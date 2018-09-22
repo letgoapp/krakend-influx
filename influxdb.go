@@ -29,7 +29,7 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 	logger.Debug("creating a new influxdb client")
 	cfg, ok := configGetter(extraConfig).(influxConfig)
 	if !ok {
-		logger.Debug("no config fot the influxdb client. aborting")
+		logger.Debug("no config for the influxdb client. Aborting")
 		return errNoConfig
 	}
 
@@ -110,7 +110,7 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 		}
 
 		if err := cw.influxClient.Write(bp); err != nil {
-			cw.logger.Error("writting to influx:", err.Error())
+			cw.logger.Error("writing to influx:", err.Error())
 			cw.buf.Add(bp)
 			continue
 		}
@@ -130,7 +130,7 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 		retryBatch.AddPoints(pts)
 
 		if err := cw.influxClient.Write(bp); err != nil {
-			cw.logger.Error("writting to influx:", err.Error())
+			cw.logger.Error("writing to influx:", err.Error())
 			cw.buf.Add(bpPending...)
 			continue
 		}
