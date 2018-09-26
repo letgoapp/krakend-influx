@@ -1,0 +1,15 @@
+[[constraint]]
+  name = "github.com/devopsfaith/krakend"
+  version = "0.5.0"
+
+[[constraint]]
+  name = "github.com/devopsfaith/krakend-metrics"
+  version = "0.5.0"
+
+[[constraint]]
+  name = "github.com/influxdata/influxdb"
+  version = "1.5.4"
+
+[prune]
+  go-tests = true
+  unused-packages = true
