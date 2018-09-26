@@ -129,8 +129,8 @@ func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time
 		})
 		retryBatch.AddPoints(pts)
 
-		if err := cw.influxClient.Write(bp); err != nil {
-			cw.logger.Error("writing to influx:", err.Error())
+		if err := cw.influxClient.Write(retryBatch); err != nil {
+			cw.logger.Error("writting to influx:", err.Error())
 			cw.buf.Add(bpPending...)
 			continue
 		}
