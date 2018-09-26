@@ -1,0 +1,89 @@
+{
+  "version": 2,
+  "extra_config": {
+    "github_com/devopsfaith/krakend-gologging": {
+      "level": "WARNING",
+      "prefix": "[KRAKEND]",
+      "syslog": false,
+      "stdout": true
+    },
+    "krakendesigner": {
+      "endpoint_defaults": {
+        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+          "maxRate": 0,
+          "clientMaxRate": 0
+        }
+      }
+    },
+    "github_com/letgoapp/krakend-influx":{
+      "address":"http://192.168.99.9:8086",
+      "ttl":"25s",
+      "buffer_size":0
+    },
+    "github_com/devopsfaith/krakend-metrics": {
+        "collection_time": "30s",
+        "listen_address": "127.0.0.1:8090"
+    }
+  },
+  "output_encoding": "json",
+  "read_timeout": "0s",
+  "write_timeout": "0s",
+  "idle_timeout": "0s",
+  "read_header_timeout": "0s",
+  "timeout": "3000ms",
+  "cache_ttl": "300s",
+  "name": "test-api",
+  "sd_providers": {
+    "hosts": [
+      {
+        "sd": "static",
+        "host": "http://192.168.99.11:8080"
+      },
+      {
+        "sd": "static",
+        "host": "http://192.168.99.12:8080"
+      },
+      {
+        "sd": "static",
+        "host": "http://192.168.99.13:8080"
+      }
+    ]
+  },
+  "endpoints": [
+    {
+      "endpoint": "/",
+      "method": "GET",
+      "output_encoding": "json",
+      "concurrent_calls": 3,
+      "extra_config": {
+        "github_com/devopsfaith/krakend-httpsecure": {
+          "disable": true,
+          "allowed_hosts": [],
+          "ssl_proxy_headers": {}
+        },
+        "github.com/devopsfaith/krakend-ratelimit/juju/router": {
+          "maxRate": 0,
+          "clientMaxRate": 0
+        }
+      },
+      "backend": [
+        {
+          "url_pattern": "/test",
+          "encoding": "json",
+          "host": [
+            "http://192.168.99.11:8080",
+            "http://192.168.99.12:8080",
+            "http://192.168.99.13:8080"
+          ],
+          "disable_host_sanitize": true,
+          "extra_config": {
+            "github.com/devopsfaith/krakend-oauth2-clientcredentials": {
+              "is_disabled": true,
+              "endpoint_params": {}
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
