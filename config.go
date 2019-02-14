@@ -72,4 +72,4 @@ func configGetter(extraConfig config.ExtraConfig) interface{} {
 	return cfg
 }
 
-var errNoConfig = errors.New("Unable to load custom config from the extra config")
+var errNoConfig = errors.New("influxdb: unable to load custom config")

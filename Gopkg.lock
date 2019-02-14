@@ -2,6 +2,7 @@
 
 
 [[projects]]
+  digest = "1:18006e4843becf30a3fbd551dd6df05931e0dcc656b8aea5f631079d8a4de3f9"
   name = "github.com/devopsfaith/krakend"
   packages = [
     "config",
@@ -14,95 +15,136 @@
     "router",
     "router/gin",
     "router/mux",
-    "sd"
+    "sd",
+    "transport/http/client",
+    "transport/http/server",
   ]
-  revision = "a9119126330c3d376857bdd6ec05c57c2dea670b"
-  version = "0.5"
+  pruneopts = "UT"
+  revision = "f82f671d8f1dc151d22949a5a3902f487c76ac23"
+  version = "0.7.0"
 
 [[projects]]
+  digest = "1:fe86dd67737c31bb6e018c2cfc4d7bd0b39f39bbe44ad78846534ab6cdb474a0"
   name = "github.com/devopsfaith/krakend-metrics"
   packages = [
     ".",
     "gin",
-    "mux"
+    "mux",
   ]
-  revision = "f563c518da3c3fa8ad05e74179824397c996cb7e"
-  version = "0.5.0"
+  pruneopts = "UT"
+  revision = "1e2c2a1f6a62e84102e01b531628b93aaf880b99"
+  version = "0.8.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:36fe9527deed01d2a317617e59304eb2c4ce9f8a24115bcc5c2e37b3aee5bae4"
   name = "github.com/gin-contrib/sse"
   packages = ["."]
+  pruneopts = "UT"
   revision = "22d885f9ecc78bf4ee5d72b937e4bbcdc58e8cae"
 
 [[projects]]
+  digest = "1:489e108f21464371ebf9cb5c30b1eceb07c6dd772dff073919267493dd9d04ea"
   name = "github.com/gin-gonic/gin"
   packages = [
     ".",
     "binding",
-    "render"
+    "render",
   ]
+  pruneopts = "UT"
   revision = "d459835d2b077e44f7c9b453505ee29881d5d12d"
   version = "v1.2"
 
 [[projects]]
+  digest = "1:15042ad3498153684d09f393bbaec6b216c8eec6d61f63dff711de7d64ed8861"
   name = "github.com/golang/protobuf"
   packages = ["proto"]
+  pruneopts = "UT"
   revision = "b4deda0973fb4c70b50d226b1af49f3da59f5265"
   version = "v1.1.0"
 
 [[projects]]
+  digest = "1:718c57979a9197414a044fff2028e57cb9fe145069e4f507059755bfe87f1bfe"
   name = "github.com/influxdata/influxdb"
   packages = [
     "client/v2",
     "models",
-    "pkg/escape"
+    "pkg/escape",
   ]
-  revision = "4e4e00bc5ab85a3ff5e988c91020cf0399a87026"
-  version = "v1.5.4"
+  pruneopts = "UT"
+  revision = "698dbc789aff13c2678357a6b93ff73dd7136571"
+  version = "v1.7.3"
 
 [[projects]]
+  digest = "1:937258f1293bc9295b4789b0abea5b4ec030e3caecb65a4e1dc0b6999957a5ed"
+  name = "github.com/influxdata/platform"
+  packages = [
+    "models",
+    "pkg/escape",
+  ]
+  pruneopts = "UT"
+  revision = "0f79e4ea3248354c789cba274542e0a8e55971db"
+
+[[projects]]
+  digest = "1:d4d17353dbd05cb52a2a52b7fe1771883b682806f68db442b436294926bbfafb"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
+  pruneopts = "UT"
   revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
   version = "v0.0.3"
 
 [[projects]]
   branch = "master"
+  digest = "1:a16e70ee324590c9f04f5a91401df5c805939ed12ffc5c25365d67658531d386"
   name = "github.com/rcrowley/go-metrics"
   packages = [
     ".",
-    "exp"
+    "exp",
   ]
+  pruneopts = "UT"
   revision = "e2704e165165ec55d062f5919b4b29494e9fa790"
 
 [[projects]]
+  digest = "1:03aa6e485e528acb119fb32901cf99582c380225fc7d5a02758e08b180cb56c3"
   name = "github.com/ugorji/go"
   packages = ["codec"]
+  pruneopts = "UT"
   revision = "b4c50a2b199d93b13dc15e78929cfb23bfdf21ab"
   version = "v1.1.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:38838aa959fb66911fa66b3409d70a8dc17b45326259f3c792496d5ee2fdbef8"
   name = "golang.org/x/sys"
   packages = ["unix"]
+  pruneopts = "UT"
   revision = "a200a19cb90b19de298170992778b1fda7217bd6"
 
 [[projects]]
+  digest = "1:cbc72c4c4886a918d6ab4b95e347ffe259846260f99ebdd8a198c2331cf2b2e9"
   name = "gopkg.in/go-playground/validator.v8"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5f1438d3fca68893a817e4a66806cea46a9e4ebf"
   version = "v8.18.2"
 
 [[projects]]
+  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
+  pruneopts = "UT"
   revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
   version = "v2.2.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5f7a83964ada109ba54ac71657681a108965a966a3dc6e4939b3157fbf3047d8"
+  input-imports = [
+    "github.com/devopsfaith/krakend-metrics",
+    "github.com/devopsfaith/krakend-metrics/gin",
+    "github.com/devopsfaith/krakend/config",
+    "github.com/devopsfaith/krakend/logging",
+    "github.com/influxdata/influxdb/client/v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1
