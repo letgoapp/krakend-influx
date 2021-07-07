@@ -71,7 +71,13 @@ func New(ctx context.Context, extraConfig config.ExtraConfig, metricsCollector *
 }
 
 func (cw clientWrapper) keepUpdated(ctx context.Context, ticker <-chan time.Time) {
-	hostname, err := os.Hostname()
+	val, present := os.LookupEnv("INFLUXDB_HOSTNAME")
+	if present {
+		hostname := val
+	}
+	else {
+		hostname, err := os.Hostname()
+	}
 	if err != nil {
 		cw.logger.Error("influxdb resolving the local hostname:", err.Error())
 	}
